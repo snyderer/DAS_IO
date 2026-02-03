@@ -1,0 +1,9 @@
+README.md
+pyproject.toml
+setup.py
+src/das_io/__init__.py
+src/das_io/data_io.py
+src/das_io.egg-info/PKG-INFO
+src/das_io.egg-info/SOURCES.txt
+src/das_io.egg-info/dependency_links.txt
+src/das_io.egg-info/top_level.txt

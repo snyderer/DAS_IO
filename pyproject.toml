@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "das_io"
+version = "0.1.0"
+description = "Data I/O utilities for DAS"
+authors = [{ name="eric snyder", email="esnyder@cornell.edu" }]
+readme = "README.md"
+license = { text="MIT" }
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
