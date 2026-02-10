@@ -63,7 +63,7 @@ def rehydrate(fk_dehyd, nonzeros, original_shape, return_format='tx'):
     if return_format == 'fk':
         return fk_positive
     elif return_format == 'tx':
-        fx_domain = np.fft.ifft(fk_positive, axis=0)
+        fx_domain = np.fft.ifft(np.fft.ifftshift(fk_positive, axes=0), axis=0)
         tx_data = np.fft.irfft(fx_domain, n=nt, axis=1)
         return tx_data
     else:
