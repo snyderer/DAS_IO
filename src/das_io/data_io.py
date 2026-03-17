@@ -36,7 +36,7 @@ def load_tx(filepath, nonzeros=None, original_shape=None, fs=None, dx=None, sett
             )
 
     # Now we know nonzeros, original_shape, fs, and dx are defined
-    tx = 1e9 * rehydrate(fk_dehyd, nonzeros, original_shape, return_format='tx')
+    tx = rehydrate(fk_dehyd, nonzeros, original_shape, return_format='tx')
     x = np.arange(0, tx.shape[0]) * dx
     t = np.arange(0, tx.shape[1]) / fs
 
