@@ -68,6 +68,87 @@ def rehydrate(fk_dehyd, nonzeros, original_shape, return_format='tx'):
         return tx_data
     else:
         raise ValueError("return_format must be 'tx' or 'fk'")
+
+# -----------------------------------------------
+# compress data
+# -----------------------------------------------
+def dehydrate_fk(fk_data, mask):
+    """
+    Dehydrate f-k domain data by applying a mask and extracting non-zero values.
+    
+    This function applies a spatial-frequency mask to the f-k data and stores only
+    the non-zero values along with their indices for later reconstruction.
+    
+    Parameters:
+    -----------
+    fk_data : np.ndarray
+        2D complex array of f-k domain data (space x positive_frequency)
+    mask : np.ndarray
+        2D boolean or float mask of same shape as fk_data
+    
+    Returns:
+    --------
+    fk_dehyd : np.ndarray
+        1D array of non-zero f-k values
+    nonzeros : np.ndarray
+        Boolean mask indicating locations of non-zero values
+    original_shape : tuple
+        Shape tuple for reconstructing original time-space data (nx, nt)
+    """
+    nx, nf = fk_data.shape
+    nt = (nf - 1) * 2  # Reconstruct original time samples from positive frequencies
+    
+    if mask.shape != fk_data.shape:
+        raise ValueError(f"Mask shape {mask.shape} must match fk_data shape {fk_data.shape}")
+    
+    # Apply mask
+    masked_fk = fk_data * mask
+    
+    # Get non-zero mask and extract values
+    nonzeros = mask.astype(bool) if mask.dtype != bool else mask
+    fk_dehyd = masked_fk[nonzeros]
+    
+    return fk_dehyd, nonzeros, (nx, nt)
+
+def dehydrate_tx(tx_data, mask):
+    """
+    Dehydrate time-space data by transforming to f-k domain first.
+    
+    This is a convenience function that combines FFT transformation with dehydration.
+    
+    Parameters:
+    -----------
+    tx_data : np.ndarray
+        2D real array of time-space data (space x time)
+    mask : np.ndarray
+        2D mask for positive frequencies (space x positive_frequency)
+    
+    Returns:
+    --------
+    fk_dehyd : np.ndarray
+        1D array of non-zero f-k values
+    nonzeros : np.ndarray
+        Boolean mask indicating locations of non-zero values
+    original_shape : tuple
+        Original shape of tx_data
+    """
+    nx, nt = tx_data.shape
+    
+    if nt % 2 != 0:
+        raise ValueError("Time dimension must be even for real FFT operations")
+    
+    nf = nt // 2 + 1
+    
+    if mask.shape != (nx, nf):
+        raise ValueError(f"Mask shape {mask.shape} must be (nx, nf_positive) = ({nx}, {nf})")
+    
+    # Transform to f-k domain (positive frequencies only)
+    fk_data = np.fft.rfft(tx_data, axis=1)  # Real FFT in time
+    fk_data = np.fft.fft(fk_data, axis=0)   # Complex FFT in space
+    
+    # Dehydrate
+    return dehydrate_fk(fk_data, mask)
+
 # -----------------------------------------------
 # find, loading, and preparing settings from settings.h5
 # -----------------------------------------------
